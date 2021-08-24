@@ -1,2 +1,2 @@
 #!/bin/bash
-gcc -g -shared -fPIC -lyed auto_paren.c -o auto_paren.so
+gcc $(yed --print-cflags) $(yed --print-ldflags) -o auto_paren.so -g auto_paren.c
