@@ -1,2 +1,2 @@
 #!/bin/bash
-gcc $(yed --print-cflags) $(yed --print-ldflags) -o auto_paren.so -g auto_paren.c
+gcc -o auto_paren.so auto_paren.c $(yed --print-cflags) $(yed --print-ldflags)
