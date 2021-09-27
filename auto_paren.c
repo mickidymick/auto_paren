@@ -85,6 +85,10 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     }
 
     if (event->key == ENTER && key_first == '{' &&  key_second == '}') {
+        LOG_FN_ENTER();
+        yed_cerr("shit\n");
+        LOG_EXIT();
+
         yed_line *line;
         int       i, j, brace_col, tabw;
 
@@ -231,7 +235,7 @@ void completer_auto_match_buff_post_insert_handler(yed_event *event) {
         if ( !yed_var_is_truthy("disable-auto-quote") ) {
             match = '\'';
         }
-    } else if ( event->key == '{' || event->key == ENTER ) {
+    } else if ( event->key == '{' ) {
         if ( !yed_var_is_truthy("disable-auto-brace") ) {
             match = '}';
         }
@@ -254,6 +258,10 @@ void completer_auto_match_buff_post_insert_handler(yed_event *event) {
     if(save_col <= 1) {
         return;
     }
+
+    LOG_FN_ENTER();
+    yed_cerr("shit 22\n");
+    LOG_EXIT();
     yed_insert_into_line(frame->buffer, save_row, save_col, G(match));
 }
 
