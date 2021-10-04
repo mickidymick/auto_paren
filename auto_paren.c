@@ -27,8 +27,14 @@ int yed_plugin_boot(yed_plugin *self) {
     h.fn   = remover_auto_match_buff_post_delete_back_handler;
     yed_plugin_add_event_handler(self, h);
 
-    if(yed_get_var("auto-skip") == NULL) {
-        yed_set_var("auto-skip", "no");
+    if(yed_get_var("auto-paren-skip") == NULL) {
+        yed_set_var("auto-paren-skip", "no");
+    }
+    if(yed_get_var("auto-quote-skip") == NULL) {
+        yed_set_var("auto-quote-skip", "no");
+    }
+    if(yed_get_var("auto-dquote-skip") == NULL) {
+        yed_set_var("auto-dquote-skip", "no");
     }
 
     return 0;
@@ -60,27 +66,27 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     key_first = yed_buff_get_glyph(event->frame->buffer, save_row, save_col-1)->c;
     key_second = yed_buff_get_glyph(event->frame->buffer, save_row, save_col)->c;
 
-    if ( event->key == ')' && key_second == ')' && (yed_var_is_truthy("auto-skip") || key_first == '(')) {
+    if ( event->key == ')' && key_second == ')' && (yed_var_is_truthy("auto-paren-skip") || key_first == '(')) {
         if ( !yed_var_is_truthy("disable-auto-paren") ) {
             event->cancel = 1;
             yed_move_cursor_within_frame(frame, 0, 1);
         }
-    } else if ( event->key == ']' && key_second == ']' && (yed_var_is_truthy("auto-skip") || key_first == '[') ) {
+    } else if ( event->key == ']' && key_second == ']' && (yed_var_is_truthy("auto-paren-skip") || key_first == '[') ) {
         if ( !yed_var_is_truthy("disable-auto-bracket") ) {
             event->cancel = 1;
             yed_move_cursor_within_frame(frame, 0, 1);
         }
-    } else if ( event->key == '}' && key_second == '}' && (yed_var_is_truthy("auto-skip") || key_first == '{')) {
+    } else if ( event->key == '}' && key_second == '}' && (yed_var_is_truthy("auto-paren-skip") || key_first == '{')) {
         if ( !yed_var_is_truthy("disable-auto-brace") ) {
             event->cancel = 1;
             yed_move_cursor_within_frame(frame, 0, 1);
         }
-    } else if ( event->key == '"' && key_first == '"' && key_second =='"') {
+    } else if ( event->key == '"' && key_second == '"' && (yed_var_is_truthy("auto-dquote-skip") || key_first =='"')) {
         if ( !yed_var_is_truthy("disable-auto-brace") ) {
             event->cancel = 1;
             yed_move_cursor_within_frame(frame, 0, 1);
         }
-    } else if ( event->key == '\'' && key_first == '\'' && key_second == '\'') {
+    } else if ( event->key == '\'' && key_second == '\'' && (yed_var_is_truthy("auto-quote-skip") || key_first == '\'')) {
         if ( !yed_var_is_truthy("disable-auto-brace") ) {
             event->cancel = 1;
             yed_move_cursor_within_frame(frame, 0, 1);
