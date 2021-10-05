@@ -45,7 +45,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     int save_col;
     int save_row;
     char match = 0;
-    char key_first;
+    char key_first;Fe
     char key_second;
 
     if ( !event->frame
@@ -94,10 +94,6 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     }
 
     if (event->key == ENTER && key_first == '{' &&  key_second == '}') {
-        LOG_FN_ENTER();
-        yed_cerr("shit\n");
-        LOG_EXIT();
-
         yed_line *line;
         int       i, j, brace_col, tabw;
 
@@ -268,9 +264,6 @@ void completer_auto_match_buff_post_insert_handler(yed_event *event) {
         return;
     }
 
-    LOG_FN_ENTER();
-    yed_cerr("shit 22\n");
-    LOG_EXIT();
     yed_insert_into_line(frame->buffer, save_row, save_col, G(match));
 }
 
