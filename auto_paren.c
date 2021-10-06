@@ -45,7 +45,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     int save_col;
     int save_row;
     char match = 0;
-    char key_first;Fe
+    char key_first;
     char key_second;
 
     if ( !event->frame
