@@ -1,10 +1,10 @@
 #include <yed/plugin.h>
 
-int do_delete_match;
-void completer_auto_match_buff_post_insert_handler(yed_event *event);
-void completer_auto_match_buff_pre_insert_handler(yed_event *event);
-void remover_auto_match_buff_pre_delete_back_handler(yed_event *event);
-void remover_auto_match_buff_post_delete_back_handler(yed_event *event);
+static int do_delete_match;
+static void completer_auto_match_buff_post_insert_handler(yed_event *event);
+static void completer_auto_match_buff_pre_insert_handler(yed_event *event);
+static void remover_auto_match_buff_pre_delete_back_handler(yed_event *event);
+static void remover_auto_match_buff_post_delete_back_handler(yed_event *event);
 
 int yed_plugin_boot(yed_plugin *self) {
     yed_event_handler h;
@@ -27,6 +27,7 @@ int yed_plugin_boot(yed_plugin *self) {
     h.fn   = remover_auto_match_buff_post_delete_back_handler;
     yed_plugin_add_event_handler(self, h);
 
+    //Skipping over right hand symbol when pressed
     if(yed_get_var("auto-paren-skip") == NULL) {
         yed_set_var("auto-paren-skip", "no");
     }
@@ -37,16 +38,30 @@ int yed_plugin_boot(yed_plugin *self) {
         yed_set_var("auto-dquote-skip", "no");
     }
 
+    //Moving right hand symbol to the other side of word on right
+    if(yed_get_var("auto-paren-jump-word") == NULL) {
+        yed_set_var("auto-paren-jump-word", "yes");
+    }
+    if(yed_get_var("auto-dquote-jump-word") == NULL) {
+        yed_set_var("auto-dquote-jump-word", "yes");
+    }
+    if(yed_get_var("auto-quote-jump-word") == NULL) {
+        yed_set_var("auto-quote-jump-word", "yes");
+    }
     return 0;
 }
 
 void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     yed_frame *frame;
-    int save_col;
-    int save_row;
-    char match = 0;
-    char key_first;
-    char key_second;
+    int        save_col;
+    int        save_row;
+    char       match = 0;
+    char       key_first;
+    char       key_second;
+    char       key_third;
+    char       tmp;
+    yed_line  *line;
+    int        i;
 
     if ( !event->frame
     ||   !event->frame->buffer
@@ -62,34 +77,105 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     if ( save_col <= 1 ) {
         return;
     }
-
     key_first = yed_buff_get_glyph(event->frame->buffer, save_row, save_col-1)->c;
     key_second = yed_buff_get_glyph(event->frame->buffer, save_row, save_col)->c;
+    key_third = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1)->c;
 
+    i=0;
     if ( event->key == ')' && key_second == ')' && (yed_var_is_truthy("auto-paren-skip") || key_first == '(')) {
-        if ( !yed_var_is_truthy("disable-auto-paren") ) {
+        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-paren-jump-word"))) {
+            line = yed_buff_get_line(event->frame->buffer, save_row);
+            if(!line) { return; }
+            tmp = key_third;
+            while(((save_col+i) < line->visual_width+1) && (isalnum(tmp) || tmp == '_')) {
+                i++;
+                tmp = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i)->c;
+            }
             event->cancel = 1;
-            yed_move_cursor_within_frame(frame, 0, 1);
+            yed_move_cursor_within_frame(frame, 0, i);
+            yed_buff_insert_string(event->frame->buffer, ")", save_row, save_col+i);
+            yed_delete_from_line(event->frame->buffer, save_row, save_col);
+        }else{
+            if ( !yed_var_is_truthy("disable-auto-paren") ) {
+                event->cancel = 1;
+                yed_move_cursor_within_frame(frame, 0, 1);
+            }
         }
     } else if ( event->key == ']' && key_second == ']' && (yed_var_is_truthy("auto-paren-skip") || key_first == '[') ) {
-        if ( !yed_var_is_truthy("disable-auto-bracket") ) {
+        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-paren-jump-word"))) {
+            line = yed_buff_get_line(event->frame->buffer, save_row);
+            if(!line) { return; }
+            tmp = key_third;
+            while(((save_col+i) < line->visual_width+1) && (isalnum(tmp) || tmp == '_')) {
+                i++;
+                tmp = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i)->c;
+            }
             event->cancel = 1;
-            yed_move_cursor_within_frame(frame, 0, 1);
+            yed_move_cursor_within_frame(frame, 0, i);
+            yed_buff_insert_string(event->frame->buffer, "]", save_row, save_col+i);
+            yed_delete_from_line(event->frame->buffer, save_row, save_col);
+        }else{
+            if ( !yed_var_is_truthy("disable-auto-bracket") ) {
+                event->cancel = 1;
+                yed_move_cursor_within_frame(frame, 0, 1);
+            }
         }
     } else if ( event->key == '}' && key_second == '}' && (yed_var_is_truthy("auto-paren-skip") || key_first == '{')) {
-        if ( !yed_var_is_truthy("disable-auto-brace") ) {
+        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-paren-jump-word"))) {
+            line = yed_buff_get_line(event->frame->buffer, save_row);
+            if(!line) { return; }
+            tmp = key_third;
+            while(((save_col+i) < line->visual_width+1) && (isalnum(tmp) || tmp == '_')) {
+                i++;
+                tmp = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i)->c;
+            }
             event->cancel = 1;
-            yed_move_cursor_within_frame(frame, 0, 1);
+            yed_move_cursor_within_frame(frame, 0, i);
+            yed_buff_insert_string(event->frame->buffer, "}", save_row, save_col+i);
+            yed_delete_from_line(event->frame->buffer, save_row, save_col);
+        }else{
+            if ( !yed_var_is_truthy("disable-auto-brace") ) {
+                event->cancel = 1;
+                yed_move_cursor_within_frame(frame, 0, 1);
+            }
         }
     } else if ( event->key == '"' && key_second == '"' && (yed_var_is_truthy("auto-dquote-skip") || key_first =='"')) {
-        if ( !yed_var_is_truthy("disable-auto-brace") ) {
+        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-dquote-jump-word"))) {
+            line = yed_buff_get_line(event->frame->buffer, save_row);
+            if(!line) { return; }
+            tmp = key_third;
+            while(((save_col+i) < line->visual_width+1) && (isalnum(tmp) || tmp == '_')) {
+                i++;
+                tmp = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i)->c;
+            }
             event->cancel = 1;
-            yed_move_cursor_within_frame(frame, 0, 1);
+            yed_move_cursor_within_frame(frame, 0, i);
+            yed_buff_insert_string(event->frame->buffer, "\"", save_row, save_col+i);
+            yed_delete_from_line(event->frame->buffer, save_row, save_col);
+        }else{
+            if ( !yed_var_is_truthy("disable-auto-dquote") ) {
+                event->cancel = 1;
+                yed_move_cursor_within_frame(frame, 0, 1);
+            }
         }
     } else if ( event->key == '\'' && key_second == '\'' && (yed_var_is_truthy("auto-quote-skip") || key_first == '\'')) {
-        if ( !yed_var_is_truthy("disable-auto-brace") ) {
+        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-quote-jump-word"))) {
+            line = yed_buff_get_line(event->frame->buffer, save_row);
+            if(!line) { return; }
+            tmp = key_third;
+            while(((save_col+i) < line->visual_width+1) && (isalnum(tmp) || tmp == '_')) {
+                i++;
+                tmp = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i)->c;
+            }
             event->cancel = 1;
-            yed_move_cursor_within_frame(frame, 0, 1);
+            yed_move_cursor_within_frame(frame, 0, i);
+            yed_buff_insert_string(event->frame->buffer, "\'", save_row, save_col+i);
+            yed_delete_from_line(event->frame->buffer, save_row, save_col);
+        }else{
+            if ( !yed_var_is_truthy("disable-auto-quote") ) {
+                event->cancel = 1;
+                yed_move_cursor_within_frame(frame, 0, 1);
+            }
         }
     }
 
