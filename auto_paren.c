@@ -140,7 +140,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
             }
         }
     } else if ( event->key == '"' && key_second == '"' && (yed_var_is_truthy("auto-dquote-skip") || key_first =='"')) {
-        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-dquote-jump-word"))) {
+        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-dquote-jump-word")) && key_first == '"' ) {
             line = yed_buff_get_line(event->frame->buffer, save_row);
             if(!line) { return; }
             tmp = key_third;
@@ -159,7 +159,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
             }
         }
     } else if ( event->key == '\'' && key_second == '\'' && (yed_var_is_truthy("auto-quote-skip") || key_first == '\'')) {
-        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-quote-jump-word"))) {
+        if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-quote-jump-word")) && key_first == '\'') {
             line = yed_buff_get_line(event->frame->buffer, save_row);
             if(!line) { return; }
             tmp = key_third;
