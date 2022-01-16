@@ -181,7 +181,8 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
 
     if (event->key == ENTER && key_first == '{' &&  key_second == '}') {
         yed_line *line;
-        int       i, j, brace_col, tabw;
+        int       i, j, brace_col, tabw, idx, len;
+        yed_glyph  *git;
 
         tabw = yed_get_tab_width();
 
@@ -194,7 +195,6 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
 
         brace_col = frame->cursor_col - 1;
 
-        yed_delete_from_line(frame->buffer, save_row, save_col);
 
         i = 0;
 
@@ -209,7 +209,17 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         for (j=0; j<i; j++){
             yed_append_to_line(frame->buffer, save_row+2, G(' '));
         }
-        yed_append_to_line(frame->buffer, save_row+2, G('}'));
+        len = 0;
+
+        line = yed_buff_get_line(frame->buffer, frame->cursor_line);
+        idx = yed_line_col_to_idx(line, frame->cursor_col);
+        yed_line_glyph_traverse_from(*line, git, idx) {
+            yed_append_to_line(frame->buffer, save_row+2, *git);
+            len += 1;
+        }
+        for (; len > 0; len -= 1) {
+            yed_pop_from_line(frame->buffer, save_row);
+        }
 
         for (j=0; j<i+tabw; j++){
             yed_append_to_line(frame->buffer, save_row+1, G(' '));
@@ -218,6 +228,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         yed_set_cursor_within_frame(frame, save_row+1, j+1);
 
         event->cancel = 1;
+
     }
 
     if (event->key == ENTER && key_first == '[' &&  key_second == ']') {
