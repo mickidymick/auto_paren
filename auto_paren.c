@@ -225,7 +225,6 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     }
 
     if (event->key == ENTER && key_first == '[' &&  key_second == ']') {
-        yed_line *line;
         int       i, j, brace_col, tabw;
 
         tabw = yed_get_tab_width();
@@ -267,7 +266,6 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     }
 
     if (event->key == ENTER && key_first == '(' &&  key_second == ')') {
-        yed_line *line;
         int       i, j, brace_col, tabw;
 
         tabw = yed_get_tab_width();
