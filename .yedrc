@@ -1,0 +1,2 @@
+plugins-add-dir "~/tmp_yed/auto_paren"
+plugin-load auto_paren

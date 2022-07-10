@@ -90,12 +90,11 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     if (!g) { return; }
     key_second = g->c;
 
-    g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
-    if (!g) { return; }
-    key_third = save_col >= line->visual_width+1?0:g->c;
-
     i=0;
     if ( event->key == ')' && key_second == ')' && (yed_var_is_truthy("auto-paren-skip") || key_first == '(')) {
+        g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
+        if (!g) { return; }
+        key_third = save_col >= line->visual_width+1?0:g->c;
         if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-paren-jump-word"))) {
             tmp = key_third;
             while(((save_col+i) < line->visual_width+1) && (isalnum(tmp) || tmp == '_')) {
@@ -115,6 +114,9 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
             }
         }
     } else if ( event->key == ']' && key_second == ']' && (yed_var_is_truthy("auto-paren-skip") || key_first == '[') ) {
+        g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
+        if (!g) { return; }
+        key_third = save_col >= line->visual_width+1?0:g->c;
         if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-paren-jump-word"))) {
             tmp = key_third;
             while(((save_col+i) < line->visual_width+1) && (isalnum(tmp) || tmp == '_')) {
@@ -134,6 +136,9 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
             }
         }
     } else if ( event->key == '}' && key_second == '}' && (yed_var_is_truthy("auto-paren-skip") || key_first == '{')) {
+        g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
+        if (!g) { return; }
+        key_third = save_col >= line->visual_width+1?0:g->c;
         if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-paren-jump-word"))) {
             line = yed_buff_get_line(event->frame->buffer, save_row);
             if (!line) { return; }
@@ -155,6 +160,9 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
             }
         }
     } else if ( event->key == '"' && key_second == '"' && (yed_var_is_truthy("auto-dquote-skip") || key_first =='"')) {
+        g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
+        if (!g) { return; }
+        key_third = save_col >= line->visual_width+1?0:g->c;
         if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-dquote-jump-word")) && key_first == '"' ) {
             line = yed_buff_get_line(event->frame->buffer, save_row);
             if (!line) { return; }
@@ -176,6 +184,9 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
             }
         }
     } else if ( event->key == '\'' && key_second == '\'' && (yed_var_is_truthy("auto-quote-skip") || key_first == '\'')) {
+        g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
+        if (!g) { return; }
+        key_third = save_col >= line->visual_width+1?0:g->c;
         if((isalnum(key_third) || key_third == '_') && (yed_var_is_truthy("auto-quote-jump-word")) && key_first == '\'') {
             tmp = key_third;
             while(((save_col+i) < line->visual_width+1) && (isalnum(tmp) || tmp == '_')) {
@@ -202,9 +213,13 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
 
         tabw = yed_get_tab_width();
 
+        yed_log("here 1\n");
+
         if (tabw <= 0) {
             return;
         }
+
+        yed_log("here 2\n");
 
         brace_col = frame->cursor_col - 1;
 
@@ -225,10 +240,14 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         len = 0;
 
         line = yed_buff_get_line(frame->buffer, frame->cursor_line);
+        yed_log("here 3\n");
         if (!line) { return; }
+        yed_log("here 4\n");
 
         idx = yed_line_col_to_idx(line, frame->cursor_col);
+        yed_log("here 5\n");
         if (idx == -1) { return; }
+        yed_log("here 6\n");
 
         yed_line_glyph_traverse_from(*line, git, idx) {
             yed_append_to_line(frame->buffer, save_row+2, *git);
@@ -245,7 +264,9 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         yed_set_cursor_within_frame(frame, save_row+1, j+1);
 
         line = yed_buff_get_line(frame->buffer, frame->cursor_line);
+        yed_log("here 7\n");
         if (!line) { return; }
+        yed_log("here 8\n");
 
 
         event->cancel = 1;
