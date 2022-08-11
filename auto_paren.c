@@ -5,6 +5,13 @@ static void completer_auto_match_buff_post_insert_handler(yed_event *event);
 static void completer_auto_match_buff_pre_insert_handler(yed_event *event);
 static void remover_auto_match_buff_pre_delete_back_handler(yed_event *event);
 static void remover_auto_match_buff_post_delete_back_handler(yed_event *event);
+static int  selection_insert(yed_event *event);
+
+static void _quote_insert_selection(int n_args, char **args);
+static void _dquote_insert_selection(int n_args, char **args);
+static void _brace_insert_selection(int n_args, char **args);
+static void _paren_insert_selection(int n_args, char **args);
+
 
 int yed_plugin_boot(yed_plugin *self) {
     yed_event_handler h;
@@ -48,7 +55,322 @@ int yed_plugin_boot(yed_plugin *self) {
     if(yed_get_var("auto-quote-jump-word") == NULL) {
         yed_set_var("auto-quote-jump-word", "yes");
     }
+    if(yed_get_var("auto-dquote-selection") == NULL) {
+        yed_set_var("auto-dquote-selection", "yes");
+    }
+    if(yed_get_var("auto-quote-selection") == NULL) {
+        yed_set_var("auto-quote-selection", "yes");
+    }
+    if(yed_get_var("auto-paren-selection") == NULL) {
+        yed_set_var("auto-paren-selection", "yes");
+    }
+    if(yed_get_var("auto-brace-selection") == NULL) {
+        yed_set_var("auto-brace-selection", "yes");
+    }
+
+    yed_plugin_set_command(self, "quote_selection",_quote_insert_selection);
+    yed_plugin_set_command(self, "dquote_selection",_dquote_insert_selection);
+    yed_plugin_set_command(self, "brace_selection",_brace_insert_selection);
+    yed_plugin_set_command(self, "paren_selection",_paren_insert_selection);
+
     return 0;
+}
+
+static void _quote_insert_selection(int n_args, char **args) {
+    yed_frame *frame;
+    int        save_col_left;
+    int        save_col_right;
+    int        save_row;
+    char       match_left  = 0;
+    char       match_right = 0;
+
+    if ( !ys->active_frame ) {
+        return;
+    }
+
+    frame = ys->active_frame;
+
+    if ( !frame->buffer ) {
+        return;
+    }
+
+    if ( !yed_var_is_truthy("disable-auto-quote") ) {
+        if (frame->buffer
+        && frame->buffer->has_selection
+        && frame->buffer->selection.kind == RANGE_NORMAL
+        && frame->buffer->selection.anchor_row == frame->buffer->selection.cursor_row) {
+            match_left  = '\'';
+            match_right = '\'';
+            if (frame->buffer->selection.anchor_col < frame->buffer->selection.cursor_col) {
+                save_col_left  = frame->buffer->selection.anchor_col;
+                save_col_right = frame->buffer->selection.cursor_col;
+            } else {
+                save_col_left  = frame->buffer->selection.cursor_col;
+                save_col_right = frame->buffer->selection.anchor_col;
+            }
+        }
+    }
+
+    if ( match_left == 0 || match_right == 0) return;
+
+    save_row = frame->buffer->selection.anchor_row;
+    if(save_col_left <= 1 || save_col_right <= 1) {
+        return;
+    }
+
+    yed_start_undo_record(frame, frame->buffer);
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_end_undo_record(frame, frame->buffer);
+}
+
+static void _dquote_insert_selection(int n_args, char **args) {
+    yed_frame *frame;
+    int        save_col_left;
+    int        save_col_right;
+    int        save_row;
+    char       match_left  = 0;
+    char       match_right = 0;
+
+    if ( !ys->active_frame ) {
+        return;
+    }
+
+    frame = ys->active_frame;
+
+    if ( !frame->buffer ) {
+        return;
+    }
+
+    if ( !yed_var_is_truthy("disable-auto-dquote") ) {
+        if (frame->buffer
+        && frame->buffer->has_selection
+        && frame->buffer->selection.kind == RANGE_NORMAL
+        && frame->buffer->selection.anchor_row == frame->buffer->selection.cursor_row) {
+            match_left  = '"';
+            match_right = '"';
+            if (frame->buffer->selection.anchor_col < frame->buffer->selection.cursor_col) {
+                save_col_left  = frame->buffer->selection.anchor_col;
+                save_col_right = frame->buffer->selection.cursor_col;
+            } else {
+                save_col_left  = frame->buffer->selection.cursor_col;
+                save_col_right = frame->buffer->selection.anchor_col;
+            }
+        }
+    }
+
+    if ( match_left == 0 || match_right == 0) return;
+
+    save_row = frame->buffer->selection.anchor_row;
+    if(save_col_left <= 1 || save_col_right <= 1) {
+        return;
+    }
+
+    yed_start_undo_record(frame, frame->buffer);
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_end_undo_record(frame, frame->buffer);
+}
+
+static void _brace_insert_selection(int n_args, char **args) {
+    yed_frame *frame;
+    int        save_col_left;
+    int        save_col_right;
+    int        save_row;
+    char       match_left  = 0;
+    char       match_right = 0;
+
+    if ( !ys->active_frame ) {
+        return;
+    }
+
+    frame = ys->active_frame;
+
+    if ( !frame->buffer ) {
+        return;
+    }
+
+    if ( !yed_var_is_truthy("disable-auto-brace") ) {
+        if (frame->buffer
+        && frame->buffer->has_selection
+        && frame->buffer->selection.kind == RANGE_NORMAL
+        && frame->buffer->selection.anchor_row == frame->buffer->selection.cursor_row) {
+            match_left  = '[';
+            match_right = ']';
+            if (frame->buffer->selection.anchor_col < frame->buffer->selection.cursor_col) {
+                save_col_left  = frame->buffer->selection.anchor_col;
+                save_col_right = frame->buffer->selection.cursor_col;
+            } else {
+                save_col_left  = frame->buffer->selection.cursor_col;
+                save_col_right = frame->buffer->selection.anchor_col;
+            }
+        }
+    }
+
+    if ( match_left == 0 || match_right == 0) return;
+
+    save_row = frame->buffer->selection.anchor_row;
+    if(save_col_left <= 1 || save_col_right <= 1) {
+        return;
+    }
+
+    yed_start_undo_record(frame, frame->buffer);
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_end_undo_record(frame, frame->buffer);
+}
+
+static void _paren_insert_selection(int n_args, char **args) {
+    yed_frame *frame;
+    int        save_col_left;
+    int        save_col_right;
+    int        save_row;
+    char       match_left  = 0;
+    char       match_right = 0;
+
+    if ( !ys->active_frame ) {
+        return;
+    }
+
+    frame = ys->active_frame;
+
+    if ( !frame->buffer ) {
+        return;
+    }
+
+    if ( !yed_var_is_truthy("disable-auto-paren") ) {
+        if (frame->buffer
+        && frame->buffer->has_selection
+        && frame->buffer->selection.kind == RANGE_NORMAL
+        && frame->buffer->selection.anchor_row == frame->buffer->selection.cursor_row) {
+            match_left  = '(';
+            match_right = ')';
+            if (frame->buffer->selection.anchor_col < frame->buffer->selection.cursor_col) {
+                save_col_left  = frame->buffer->selection.anchor_col;
+                save_col_right = frame->buffer->selection.cursor_col;
+            } else {
+                save_col_left  = frame->buffer->selection.cursor_col;
+                save_col_right = frame->buffer->selection.anchor_col;
+            }
+        }
+    }
+
+    if ( match_left == 0 || match_right == 0) return;
+
+    save_row = frame->buffer->selection.anchor_row;
+    if(save_col_left <= 1 || save_col_right <= 1) {
+        return;
+    }
+
+    yed_start_undo_record(frame, frame->buffer);
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_end_undo_record(frame, frame->buffer);
+}
+
+int selection_insert(yed_event *event) {
+    yed_frame *frame;
+    int        save_col_left;
+    int        save_col_right;
+    int        save_row;
+    char       match_left  = 0;
+    char       match_right = 0;
+
+    if ( !event->frame ) {
+        return 0;
+    }
+
+    if ( !event->frame->buffer ) {
+        return 0;
+    }
+
+    if ( event->key == '\'' ) {
+        if ( !yed_var_is_truthy("disable-auto-quote") ) {
+            if (yed_var_is_truthy("auto-quote-selection")
+            && event->buffer
+            && event->buffer->has_selection
+            && event->buffer->selection.kind == RANGE_NORMAL
+            && event->buffer->selection.anchor_row == event->buffer->selection.cursor_row) {
+                match_left  = '\'';
+                match_right = '\'';
+                if (event->buffer->selection.anchor_col < event->buffer->selection.cursor_col) {
+                    save_col_left  = event->buffer->selection.anchor_col;
+                    save_col_right = event->buffer->selection.cursor_col;
+                } else {
+                    save_col_left  = event->buffer->selection.cursor_col;
+                    save_col_right = event->buffer->selection.anchor_col;
+                }
+            }
+        }
+    } else if ( event->key == '"' ) {
+        if ( !yed_var_is_truthy("disable-auto-dquote") ) {
+            if (yed_var_is_truthy("auto-dquote-selection")
+            && event->buffer
+            && event->buffer->has_selection
+            && event->buffer->selection.kind == RANGE_NORMAL
+            && event->buffer->selection.anchor_row == event->buffer->selection.cursor_row) {
+                match_left  = '"';
+                match_right = '"';
+                if (event->buffer->selection.anchor_col < event->buffer->selection.cursor_col) {
+                    save_col_left  = event->buffer->selection.anchor_col;
+                    save_col_right = event->buffer->selection.cursor_col;
+                } else {
+                    save_col_left  = event->buffer->selection.cursor_col;
+                    save_col_right = event->buffer->selection.anchor_col;
+                }
+            }
+        }
+    } else if ( event->key == '(' ) {
+        if ( !yed_var_is_truthy("disable-auto-paren") ) {
+            if (yed_var_is_truthy("auto-paren-selection")
+            && event->buffer
+            && event->buffer->has_selection
+            && event->buffer->selection.kind == RANGE_NORMAL
+            && event->buffer->selection.anchor_row == event->buffer->selection.cursor_row) {
+                match_left  = '(';
+                match_right = ')';
+                if (event->buffer->selection.anchor_col < event->buffer->selection.cursor_col) {
+                    save_col_left  = event->buffer->selection.anchor_col;
+                    save_col_right = event->buffer->selection.cursor_col;
+                } else {
+                    save_col_left  = event->buffer->selection.cursor_col;
+                    save_col_right = event->buffer->selection.anchor_col;
+                }
+            }
+        }
+    } else if ( event->key == '[' ) {
+        if ( !yed_var_is_truthy("disable-auto-brace") ) {
+            if (yed_var_is_truthy("auto-brace-selection")
+            && event->buffer
+            && event->buffer->has_selection
+            && event->buffer->selection.kind == RANGE_NORMAL
+            && event->buffer->selection.anchor_row == event->buffer->selection.cursor_row) {
+                match_left  = '[';
+                match_right = ']';
+                if (event->buffer->selection.anchor_col < event->buffer->selection.cursor_col) {
+                    save_col_left  = event->buffer->selection.anchor_col;
+                    save_col_right = event->buffer->selection.cursor_col;
+                } else {
+                    save_col_left  = event->buffer->selection.cursor_col;
+                    save_col_right = event->buffer->selection.anchor_col;
+                }
+            }
+        }
+    }
+
+    if ( match_left == 0 || match_right == 0) return 0;
+
+    frame = event->frame;
+
+    save_row = event->buffer->selection.anchor_row;
+    if(save_col_left <= 1 || save_col_right <= 1) {
+        return 0;
+    }
+
+    yed_start_undo_record(frame, frame->buffer);
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_end_undo_record(frame, frame->buffer);
 }
 
 void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
@@ -63,6 +385,11 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     yed_line  *line;
     int        i;
     yed_glyph *g;
+
+    if (selection_insert(event)) {
+        event->cancel = 1;
+        return;
+    }
 
     if ( !event->frame
     ||   !event->frame->buffer
@@ -398,7 +725,6 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
 
         event->cancel = 1;
     }
-
 }
 
 void completer_auto_match_buff_post_insert_handler(yed_event *event) {
