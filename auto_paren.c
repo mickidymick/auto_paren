@@ -68,10 +68,10 @@ int yed_plugin_boot(yed_plugin *self) {
         yed_set_var("auto-brace-selection", "yes");
     }
 
-    yed_plugin_set_command(self, "quote_selection",_quote_insert_selection);
-    yed_plugin_set_command(self, "dquote_selection",_dquote_insert_selection);
-    yed_plugin_set_command(self, "brace_selection",_brace_insert_selection);
-    yed_plugin_set_command(self, "paren_selection",_paren_insert_selection);
+    yed_plugin_set_command(self, "auto-quote-selection",_quote_insert_selection);
+    yed_plugin_set_command(self, "auto-dquote-selection",_dquote_insert_selection);
+    yed_plugin_set_command(self, "auto-brace-selection",_brace_insert_selection);
+    yed_plugin_set_command(self, "auto-paren-selection",_paren_insert_selection);
 
     return 0;
 }
