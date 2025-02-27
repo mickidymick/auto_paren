@@ -119,8 +119,8 @@ static void _quote_insert_selection(int n_args, char **args) {
     }
 
     yed_start_undo_record(frame, frame->buffer);
-    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
-    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, GLYPH(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, GLYPH(match_left));
     yed_end_undo_record(frame, frame->buffer);
 }
 
@@ -167,8 +167,8 @@ static void _dquote_insert_selection(int n_args, char **args) {
     }
 
     yed_start_undo_record(frame, frame->buffer);
-    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
-    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, GLYPH(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, GLYPH(match_left));
     yed_end_undo_record(frame, frame->buffer);
 }
 
@@ -215,8 +215,8 @@ static void _brace_insert_selection(int n_args, char **args) {
     }
 
     yed_start_undo_record(frame, frame->buffer);
-    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
-    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, GLYPH(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, GLYPH(match_left));
     yed_end_undo_record(frame, frame->buffer);
 }
 
@@ -263,8 +263,8 @@ static void _paren_insert_selection(int n_args, char **args) {
     }
 
     yed_start_undo_record(frame, frame->buffer);
-    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
-    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, GLYPH(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, GLYPH(match_left));
     yed_end_undo_record(frame, frame->buffer);
 }
 
@@ -368,8 +368,8 @@ int selection_insert(yed_event *event) {
     }
 
     yed_start_undo_record(frame, frame->buffer);
-    yed_insert_into_line(frame->buffer, save_row, save_col_right, G(match_right));
-    yed_insert_into_line(frame->buffer, save_row, save_col_left, G(match_left));
+    yed_insert_into_line(frame->buffer, save_row, save_col_right, GLYPH(match_right));
+    yed_insert_into_line(frame->buffer, save_row, save_col_left, GLYPH(match_left));
     yed_end_undo_record(frame, frame->buffer);
 }
 
@@ -421,7 +421,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     if ( event->key == ')' && key_second == ')' && (yed_var_is_truthy("auto-paren-skip") || key_first == '(')) {
         g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
         if (!g) {
-            yed_append_to_line(event->frame->buffer, save_row, G(' '));
+            yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
             g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
             if (!g) {
                 return;
@@ -434,7 +434,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
                 i++;
                 g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                 if (!g) {
-                    yed_append_to_line(event->frame->buffer, save_row, G(' '));
+                    yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
                     g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                     if (!g) {
                         return;
@@ -455,7 +455,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     } else if ( event->key == ']' && key_second == ']' && (yed_var_is_truthy("auto-paren-skip") || key_first == '[') ) {
         g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
         if (!g) {
-            yed_append_to_line(event->frame->buffer, save_row, G(' '));
+            yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
             g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
             if (!g) {
                 return;
@@ -468,7 +468,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
                 i++;
                 g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                 if (!g) {
-                    yed_append_to_line(event->frame->buffer, save_row, G(' '));
+                    yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
                     g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                     if (!g) {
                         return;
@@ -489,7 +489,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     } else if ( event->key == '}' && key_second == '}' && (yed_var_is_truthy("auto-paren-skip") || key_first == '{')) {
         g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
         if (!g) {
-            yed_append_to_line(event->frame->buffer, save_row, G(' '));
+            yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
             g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
             if (!g) {
                 return;
@@ -502,7 +502,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
                 i++;
                 g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                 if (!g) {
-                    yed_append_to_line(event->frame->buffer, save_row, G(' '));
+                    yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
                     g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                     if (!g) {
                         return;
@@ -523,7 +523,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     } else if ( event->key == '"' && key_second == '"' && (yed_var_is_truthy("auto-dquote-skip") || key_first =='"')) {
         g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
         if (!g) {
-            yed_append_to_line(event->frame->buffer, save_row, G(' '));
+            yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
             g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
             if (!g) {
                 return;
@@ -536,7 +536,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
                 i++;
                 g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                 if (!g) {
-                    yed_append_to_line(event->frame->buffer, save_row, G(' '));
+                    yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
                     g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                     if (!g) {
                         return;
@@ -557,7 +557,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
     } else if ( event->key == '\'' && key_second == '\'' && (yed_var_is_truthy("auto-quote-skip") || key_first == '\'')) {
         g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
         if (!g) {
-            yed_append_to_line(event->frame->buffer, save_row, G(' '));
+            yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
             g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+1);
             if (!g) {
                 return;
@@ -570,7 +570,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
                 i++;
                 g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                 if (!g) {
-                    yed_append_to_line(event->frame->buffer, save_row, G(' '));
+                    yed_append_to_line(event->frame->buffer, save_row, GLYPH(' '));
                     g = yed_buff_get_glyph(event->frame->buffer, save_row, save_col+i);
                     if (!g) {
                         return;
@@ -614,7 +614,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         yed_buff_insert_line(frame->buffer, save_row+2);
 
         for (j=0; j<i; j++){
-            yed_append_to_line(frame->buffer, save_row+2, G(' '));
+            yed_append_to_line(frame->buffer, save_row+2, GLYPH(' '));
         }
         len = 0;
 
@@ -625,7 +625,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         if (idx == -1) { return; }
 
         yed_line_glyph_traverse_from(*line, git, idx) {
-            yed_append_to_line(frame->buffer, save_row+2, *git);
+            yed_append_to_line(frame->buffer, save_row+2, git);
             len += 1;
         }
         for (; len > 0; len -= 1) {
@@ -633,7 +633,7 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         }
 
         for (j=0; j<i+tabw; j++){
-            yed_append_to_line(frame->buffer, save_row+1, G(' '));
+            yed_append_to_line(frame->buffer, save_row+1, GLYPH(' '));
         }
 
         yed_set_cursor_within_frame(frame, save_row+1, j+1);
@@ -669,12 +669,12 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         yed_buff_insert_line(frame->buffer, save_row+2);
 
         for (j=0; j<i; j++){
-            yed_append_to_line(frame->buffer, save_row+2, G(' '));
+            yed_append_to_line(frame->buffer, save_row+2, GLYPH(' '));
         }
-        yed_append_to_line(frame->buffer, save_row+2, G(']'));
+        yed_append_to_line(frame->buffer, save_row+2, GLYPH(']'));
 
         for (j=0; j<i+tabw; j++){
-            yed_append_to_line(frame->buffer, save_row+1, G(' '));
+            yed_append_to_line(frame->buffer, save_row+1, GLYPH(' '));
         }
 
         yed_set_cursor_within_frame(frame, save_row+1, j+1);
@@ -710,12 +710,12 @@ void completer_auto_match_buff_pre_insert_handler(yed_event *event) {
         yed_buff_insert_line(frame->buffer, save_row+2);
 
         for (j=0; j<i; j++){
-            yed_append_to_line(frame->buffer, save_row+2, G(' '));
+            yed_append_to_line(frame->buffer, save_row+2, GLYPH(' '));
         }
-        yed_append_to_line(frame->buffer, save_row+2, G(')'));
+        yed_append_to_line(frame->buffer, save_row+2, GLYPH(')'));
 
         for (j=0; j<i+tabw; j++){
-            yed_append_to_line(frame->buffer, save_row+1, G(' '));
+            yed_append_to_line(frame->buffer, save_row+1, GLYPH(' '));
         }
 
         yed_set_cursor_within_frame(frame, save_row+1, j+1);
@@ -773,7 +773,7 @@ void completer_auto_match_buff_post_insert_handler(yed_event *event) {
         return;
     }
 
-    yed_insert_into_line(frame->buffer, save_row, save_col, G(match));
+    yed_insert_into_line(frame->buffer, save_row, save_col, GLYPH(&match));
 }
 
 void remover_auto_match_buff_pre_delete_back_handler(yed_event *event) {
