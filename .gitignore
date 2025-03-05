@@ -1,2 +1,5 @@
-#Files
+.ccls-cache
+.yedrc
+debug_build.sh
+compile_commands.json
 auto_paren.so
